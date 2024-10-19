@@ -21,7 +21,6 @@ pub struct Map {
 
 impl Map {
 	pub fn coordinates_to_index(&self, i: i32, j: i32) -> usize {
-		//println!("{} {}: {}", i, j, (i as usize * MAP_WIDTH) + j as usize);
 		(i as usize * MAP_WIDTH) + j as usize
 	}
 

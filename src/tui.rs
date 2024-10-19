@@ -5,6 +5,7 @@ use crossterm::{
 	style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
 	cursor::{Hide, MoveTo},
 	ExecutableCommand,
+	QueueableCommand,
 	event,
 	terminal::{self, Clear, ClearType, SetSize, EnterAlternateScreen, LeaveAlternateScreen},
 };
@@ -38,8 +39,8 @@ pub fn draw_map(map: &Map) -> std::io::Result<()> {
 			let index = map.coordinates_to_index(i as i32, j as i32);
 			if map.tiles[index] == TileType::Wall {
 				stdout()
-					.execute(MoveTo(j as u16, i as u16))?
-					.execute(Print('█'))?;
+					.queue(MoveTo(j as u16, i as u16))?
+					.queue(Print('█'))?;
 			}
 		}
 	}
@@ -50,9 +51,9 @@ pub fn draw_map(map: &Map) -> std::io::Result<()> {
 pub fn draw_player(player: &Player) -> std::io::Result<()> {
 	let index = player.i * 60 + player.j;
 	stdout()
-		.execute(MoveTo(player.j as u16, player.i as u16))?
-		.execute(Print('@'))?
-		.execute(MoveTo(0, 0))?
-		.execute(Print(format!("{} {}: {}", player.i, player.j, index)))?; 
+		.queue(MoveTo(player.j as u16, player.i as u16))?
+		.queue(Print('@'))?
+		.queue(MoveTo(0, 0))?
+		.queue(Print(format!("{} {}: {}", player.i, player.j, index)))?; 
 	Ok(())
 }

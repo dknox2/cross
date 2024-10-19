@@ -4,6 +4,8 @@ mod player;
 mod rect;
 mod tui;
 
+use std::io::{stdout, Write};
+
 use crate::map::TileType;
 
 use crossterm::event::{read, Event, KeyCode};
@@ -19,11 +21,12 @@ fn main() -> std::io::Result<()> {
 	tui::draw_map(&map)?;
 	tui::draw_player(&player)?;
 
+	stdout().flush();
+
 	'main_loop: loop {
 		let event = read()?;
 		if let Event::Key(event) = event {
 			match event.code {
-				// TODO Are we handling these inputs backwards?
 				KeyCode::Up => {
 					let coordinates = (player.i - 1, player.j);
 					let index = map.coordinates_to_index(coordinates.0, coordinates.1);
@@ -32,13 +35,25 @@ fn main() -> std::io::Result<()> {
 					}
 				},
 				KeyCode::Down => {
-					player.i = player.i + 1;
+					let coordinates = (player.i + 1, player.j);
+					let index = map.coordinates_to_index(coordinates.0, coordinates.1);
+					if map.tiles[index] != TileType::Wall {
+						player.i += 1;
+					}
 				},
 				KeyCode::Left => {
-					player.j = player.j - 1;
+					let coordinates = (player.i, player.j - 1);
+					let index = map.coordinates_to_index(coordinates.0, coordinates.1);
+					if map.tiles[index] != TileType::Wall {
+						player.j -= 1;
+					}
 				},
 				KeyCode::Right => {
-					player.j = player.j + 1;
+					let coordinates = (player.i, player.j + 1);
+					let index = map.coordinates_to_index(coordinates.0, coordinates.1);
+					if map.tiles[index] != TileType::Wall {
+						player.j += 1;
+					}
 				},
 				KeyCode::Esc => break 'main_loop,
 				_ => {}
@@ -47,6 +62,7 @@ fn main() -> std::io::Result<()> {
 
 		tui::draw_map(&map)?;
 		tui::draw_player(&player)?;
+		stdout().flush();
 	}
 
 	tui::teardown_terminal()?;
