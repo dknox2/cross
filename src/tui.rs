@@ -32,12 +32,12 @@ pub fn teardown_terminal() -> std::io::Result<()> {
 pub fn draw_map(map: &Map) -> std::io::Result<()> {
     stdout().execute(Clear(ClearType::All))?;
 
-    for i in 0..MAP_HEIGHT {
-        for j in 0..MAP_WIDTH {
-            let index = map.coordinates_to_index(i as i32, j as i32);
+    for y in 0..MAP_HEIGHT {
+        for x in 0..MAP_WIDTH {
+            let index = map.coordinates_to_index(x as i32, y as i32);
             if map.tiles[index] == TileType::Wall {
                 stdout()
-                    .queue(MoveTo(j as u16, i as u16))?
+                    .queue(MoveTo(x as u16, y as u16))?
                     .queue(Print('█'))?;
             }
         }
@@ -47,17 +47,17 @@ pub fn draw_map(map: &Map) -> std::io::Result<()> {
 }
 
 pub fn draw_player(player: &Player) -> std::io::Result<()> {
-    let index = player.creature.position.i * 60 + player.creature.position.j;
+    let index = player.creature.position.x * 60 + player.creature.position.y;
     stdout()
         .queue(MoveTo(
-            player.creature.position.j as u16,
-            player.creature.position.i as u16,
+            player.creature.position.x as u16,
+            player.creature.position.y as u16,
         ))?
         .queue(Print('@'))?
         .queue(MoveTo(0, 0))?
         .queue(Print(format!(
             "{} {}: {}",
-            player.creature.position.i, player.creature.position.j, index
+            player.creature.position.x, player.creature.position.y, index
         )))?;
     Ok(())
 }

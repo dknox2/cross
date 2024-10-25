@@ -2,7 +2,7 @@ use rand::prelude::*;
 use std::cmp::{max, min};
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use crate::position::Position;
+use crate::point::Point;
 use crate::rect::Rect;
 
 pub const MAP_WIDTH: usize = 60;
@@ -28,14 +28,14 @@ pub struct Map {
 }
 
 impl Map {
-    // Row major order
-    // TODO Should probably make this take a Position struct and also unit test.
+    // TODO Should probably make this take a Point struct.
     // Could be nice to set up variable map width as well.
-    pub fn coordinates_to_index(&self, i: i32, j: i32) -> usize {
-        (i as usize * MAP_WIDTH) + j as usize
+    pub fn coordinates_to_index(&self, x: i32, y: i32) -> usize {
+        (y as usize * MAP_WIDTH) + x as usize
     }
 
-    fn find_shortest_path_to(&self, start: &Position, end: &Position) -> Vec<Position> {
+	// TODO We can probably be more memory efficient here.
+    fn find_shortest_path_to(&self, start: &Point, end: &Point) -> Vec<Point> {
         let mut queue = VecDeque::new();
         let mut explored = HashSet::new();
         let mut parents = HashMap::new();
@@ -48,7 +48,7 @@ impl Map {
             if current == *end {
                 return self.backtrace(&parents, start, end);
             }
-            let adjacent_tiles = self.get_traversible_adjacent_tiles(current.i, current.j);
+            let adjacent_tiles = self.get_traversible_adjacent_tiles(current.x, current.y);
             for tile in adjacent_tiles {
                 if !explored.contains(&tile) {
                     queue.push_back(tile);
@@ -61,14 +61,14 @@ impl Map {
         Vec::new()
     }
 
-    fn get_traversible_adjacent_tiles(&self, i: i32, j: i32) -> Vec<Position> {
+    fn get_traversible_adjacent_tiles(&self, x: i32, y: i32) -> Vec<Point> {
         let mut adjacent_indices = Vec::new();
 
-        for new_i in i - 1..=i + 1 {
-            for new_j in j - 1..=j + 1 {
-                let index = self.coordinates_to_index(new_i, new_j);
+        for new_x in x - 1..=x + 1 {
+            for new_y in y - 1..=y + 1 {
+                let index = self.coordinates_to_index(new_x, new_y);
                 if self.tiles[index].is_traversible() {
-                    let position = Position { i, j };
+                    let position = Point { x: new_x, y: new_y };
                     adjacent_indices.push(position);
                 }
             }
@@ -79,10 +79,10 @@ impl Map {
 
     fn backtrace(
         &self,
-        parents: &HashMap<Position, Position>,
-        start: &Position,
-        end: &Position,
-    ) -> Vec<Position> {
+        parents: &HashMap<Point, Point>,
+        start: &Point,
+        end: &Point,
+    ) -> Vec<Point> {
         let mut path = Vec::new();
         path.push(*end);
 
@@ -136,8 +136,8 @@ impl Map {
         for _ in 0..MAX_ROOMS {
             let width = random.gen_range(MIN_SIZE..MAX_SIZE);
             let height = random.gen_range(MIN_SIZE..MAX_SIZE);
-            let i = random.gen_range(1..MAP_HEIGHT as i32 - width) - 1;
-            let j = random.gen_range(1..MAP_WIDTH as i32 - height) - 1;
+            let i = random.gen_range(1..MAP_WIDTH as i32 - width) - 1;
+            let j = random.gen_range(1..MAP_HEIGHT as i32 - height) - 1;
 
             let new_room = Rect::new(i, j, width, height);
             let mut ok = true;

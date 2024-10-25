@@ -1,7 +1,7 @@
-use crate::position::Position;
+use crate::point::Point;
 
 pub struct Creature {
-    pub position: Position,
+    pub position: Point,
     pub name: String,
     pub max_health: i32,
     pub health: i32,
