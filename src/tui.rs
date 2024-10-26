@@ -64,14 +64,11 @@ pub fn draw_player(player: &Player) -> std::io::Result<()> {
 }
 
 pub fn draw_monsters(monsters: &[Creature]) -> std::io::Result<()> {
-	for monster in monsters {
-		stdout()
-			.queue(MoveTo(
-				monster.position.x as u16,
-				monster.position.y as u16
-			))?
-			.queue(Print('g'))?;
-	}
+    for monster in monsters {
+        stdout()
+            .queue(MoveTo(monster.position.x as u16, monster.position.y as u16))?
+            .queue(Print('g'))?;
+    }
 
-	Ok(())
+    Ok(())
 }

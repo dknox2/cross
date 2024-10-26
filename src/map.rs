@@ -34,7 +34,11 @@ impl Map {
         (y as usize * MAP_WIDTH) + x as usize
     }
 
-	// TODO Need to organize my monster spawning and movement logic better.
+    pub fn point_to_index(&self, coordinates: &Point) -> usize {
+        self.coordinates_to_index(coordinates.x, coordinates.y)
+    }
+
+    // TODO Need to organize my monster spawning and movement logic better.
     pub fn find_shortest_path_to(&self, start: &Point, end: &Point) -> Vec<Point> {
         let mut queue = VecDeque::new();
         let mut explored = HashSet::new();
@@ -77,12 +81,7 @@ impl Map {
         adjacent_indices
     }
 
-    fn backtrace(
-        &self,
-        parents: &HashMap<Point, Point>,
-        start: &Point,
-        end: &Point,
-    ) -> Vec<Point> {
+    fn backtrace(&self, parents: &HashMap<Point, Point>, start: &Point, end: &Point) -> Vec<Point> {
         let mut path = Vec::new();
         path.push(*end);
 
@@ -153,8 +152,8 @@ impl Map {
                     let (new_x, new_y) = new_room.center();
                     let (prev_x, prev_y) = map.rooms[map.rooms.len() - 1].center();
                     if random.gen::<bool>() {
-                       map.apply_horizontal_tunnel(prev_x, new_x, prev_y);
-                       map.apply_vertical_tunnel(new_x, prev_y, new_y);
+                        map.apply_horizontal_tunnel(prev_x, new_x, prev_y);
+                        map.apply_vertical_tunnel(new_x, prev_y, new_y);
                     } else {
                         map.apply_vertical_tunnel(new_x, prev_y, new_y);
                         map.apply_horizontal_tunnel(prev_x, new_x, prev_y);
