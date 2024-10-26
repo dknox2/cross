@@ -17,8 +17,8 @@ pub enum TileType {
 }
 
 impl TileType {
-    pub fn is_traversible(&self) -> bool {
-        *self != TileType::Wall
+    pub fn is_traversible(self) -> bool {
+        self != TileType::Wall
     }
 }
 
@@ -153,11 +153,11 @@ impl Map {
                     let (new_x, new_y) = new_room.center();
                     let (prev_x, prev_y) = map.rooms[map.rooms.len() - 1].center();
                     if random.gen::<bool>() {
-                        map.apply_horizontal_tunnel(prev_x, new_x, prev_y);
-                        map.apply_vertical_tunnel(new_x, prev_y, new_y);
+                       map.apply_horizontal_tunnel(prev_x, new_x, prev_y);
+                       map.apply_vertical_tunnel(new_x, prev_y, new_y);
                     } else {
                         map.apply_vertical_tunnel(new_x, prev_y, new_y);
-                        map.apply_horizontal_tunnel(prev_x, new_x, new_y);
+                        map.apply_horizontal_tunnel(prev_x, new_x, prev_y);
                     }
                 }
 

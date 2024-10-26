@@ -10,7 +10,6 @@ use std::io::{stdout, Write};
 
 use crate::creature::Creature;
 use crate::game::Game;
-use crate::map::TileType;
 use crate::point::Point;
 
 use crossterm::event::{read, Event, KeyCode};
