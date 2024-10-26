@@ -8,6 +8,7 @@ use crossterm::{
     ExecutableCommand, QueueableCommand,
 };
 
+use crate::creature::Creature;
 use crate::map::{Map, TileType, MAP_HEIGHT, MAP_WIDTH};
 use crate::player::Player;
 
@@ -60,4 +61,17 @@ pub fn draw_player(player: &Player) -> std::io::Result<()> {
             player.creature.position.x, player.creature.position.y, index
         )))?;
     Ok(())
+}
+
+pub fn draw_monsters(monsters: &[Creature]) -> std::io::Result<()> {
+	for monster in monsters {
+		stdout()
+			.queue(MoveTo(
+				monster.position.x as u16,
+				monster.position.y as u16
+			))?
+			.queue(Print('g'))?;
+	}
+
+	Ok(())
 }

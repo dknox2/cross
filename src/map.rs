@@ -34,8 +34,8 @@ impl Map {
         (y as usize * MAP_WIDTH) + x as usize
     }
 
-	// TODO We can probably be more memory efficient here.
-    fn find_shortest_path_to(&self, start: &Point, end: &Point) -> Vec<Point> {
+	// TODO Need to organize my monster spawning and movement logic better.
+    pub fn find_shortest_path_to(&self, start: &Point, end: &Point) -> Vec<Point> {
         let mut queue = VecDeque::new();
         let mut explored = HashSet::new();
         let mut parents = HashMap::new();
@@ -104,18 +104,18 @@ impl Map {
         }
     }
 
-    fn apply_horizontal_tunnel(&mut self, i1: i32, i2: i32, j: i32) {
-        for i in min(i1, i2)..=max(i1, i2) {
-            let index = self.coordinates_to_index(i, j);
+    fn apply_horizontal_tunnel(&mut self, x1: i32, x2: i32, y: i32) {
+        for x in min(x1, x2)..=max(x1, x2) {
+            let index = self.coordinates_to_index(x, y);
             if index > 0 && index < MAP_COUNT {
                 self.tiles[index] = TileType::Floor;
             }
         }
     }
 
-    fn apply_vertical_tunnel(&mut self, j1: i32, j2: i32, i: i32) {
-        for j in min(j1, j2)..=max(j1, j2) {
-            let index = self.coordinates_to_index(i, j);
+    fn apply_vertical_tunnel(&mut self, x: i32, y1: i32, y2: i32) {
+        for y in min(y1, y2)..=max(y1, y2) {
+            let index = self.coordinates_to_index(x, y);
             if index > 0 && index < MAP_COUNT {
                 self.tiles[index] = TileType::Floor;
             }
@@ -154,9 +154,9 @@ impl Map {
                     let (prev_x, prev_y) = map.rooms[map.rooms.len() - 1].center();
                     if random.gen::<bool>() {
                         map.apply_horizontal_tunnel(prev_x, new_x, prev_y);
-                        map.apply_vertical_tunnel(prev_y, new_y, new_x);
+                        map.apply_vertical_tunnel(new_x, prev_y, new_y);
                     } else {
-                        map.apply_vertical_tunnel(prev_y, new_y, prev_x);
+                        map.apply_vertical_tunnel(new_x, prev_y, new_y);
                         map.apply_horizontal_tunnel(prev_x, new_x, new_y);
                     }
                 }

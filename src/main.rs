@@ -9,6 +9,7 @@ mod tui;
 use std::io::{stdout, Write};
 
 use crate::creature::Creature;
+use crate::game::Game;
 use crate::map::TileType;
 use crate::point::Point;
 
@@ -32,43 +33,48 @@ fn main() -> std::io::Result<()> {
         strength: 1,
     };
 
-    let mut player = player::Player { creature };
-    tui::setup_terminal()?;
-    tui::draw_map(&map)?;
-    tui::draw_player(&player)?;
+    let player = player::Player { creature };
 
-    stdout().flush();
+	let mut game = Game { map, player, monsters: Vec::new() };
+	game.spawn_monsters_in_map_rooms();
+
+    tui::setup_terminal()?;
+    tui::draw_map(&game.map)?;
+    tui::draw_player(&game.player)?;
+	tui::draw_monsters(&game.monsters)?;
+
+    stdout().flush()?;
 
     'main_loop: loop {
         let event = read()?;
         if let Event::Key(event) = event {
             match event.code {
                 KeyCode::Up => {
-                    let coordinates = (player.creature.position.x, player.creature.position.y - 1);
-                    let index = map.coordinates_to_index(coordinates.0, coordinates.1);
-                    if map.tiles[index] != TileType::Wall {
-                        player.creature.position.make_move(0, -1);
+                    let coordinates = (game.player.creature.position.x, game.player.creature.position.y - 1);
+                    let index = game.map.coordinates_to_index(coordinates.0, coordinates.1);
+                    if game.map.tiles[index].is_traversible() {
+                        game.player.creature.position.make_move(0, -1);
                     }
                 }
                 KeyCode::Down => {
-                    let coordinates = (player.creature.position.x, player.creature.position.y + 1);
-                    let index = map.coordinates_to_index(coordinates.0, coordinates.1);
-                    if map.tiles[index] != TileType::Wall {
-                        player.creature.position.make_move(0, 1);
+                    let coordinates = (game.player.creature.position.x, game.player.creature.position.y + 1);
+                    let index = game.map.coordinates_to_index(coordinates.0, coordinates.1);
+                    if game.map.tiles[index].is_traversible() {
+                        game.player.creature.position.make_move(0, 1);
                     }
                 }
                 KeyCode::Left => {
-                    let coordinates = (player.creature.position.x - 1, player.creature.position.y);
-                    let index = map.coordinates_to_index(coordinates.0, coordinates.1);
-                    if map.tiles[index] != TileType::Wall {
-                        player.creature.position.make_move(-1, 0);
+                    let coordinates = (game.player.creature.position.x - 1, game.player.creature.position.y);
+                    let index = game.map.coordinates_to_index(coordinates.0, coordinates.1);
+                    if game.map.tiles[index].is_traversible() {
+                        game.player.creature.position.make_move(-1, 0);
                     }
                 }
                 KeyCode::Right => {
-                    let coordinates = (player.creature.position.x + 1, player.creature.position.y);
-                    let index = map.coordinates_to_index(coordinates.0, coordinates.1);
-                    if map.tiles[index] != TileType::Wall {
-                        player.creature.position.make_move(1, 0);
+                    let coordinates = (game.player.creature.position.x + 1, game.player.creature.position.y);
+                    let index = game.map.coordinates_to_index(coordinates.0, coordinates.1);
+                    if game.map.tiles[index].is_traversible() {
+                        game.player.creature.position.make_move(1, 0);
                     }
                 }
                 KeyCode::Esc => break 'main_loop,
@@ -76,9 +82,20 @@ fn main() -> std::io::Result<()> {
             }
         }
 
-        tui::draw_map(&map)?;
-        tui::draw_player(&player)?;
-        stdout().flush();
+		for monster in &mut game.monsters {
+			let path = game.map.find_shortest_path_to(&monster.position, &game.player.creature.position);
+			// TODO We should maybe find a better way to handle when a path cannot be found.
+			if path.len() > 1 {
+				let next_step = path[1];
+				monster.position.x = next_step.x;
+				monster.position.y = next_step.y;
+			}
+		}
+
+        tui::draw_map(&game.map)?;
+        tui::draw_player(&game.player)?;
+		tui::draw_monsters(&game.monsters)?;
+        stdout().flush()?;
     }
 
     tui::teardown_terminal()?;
