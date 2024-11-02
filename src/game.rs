@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use rand::thread_rng;
 
 use crate::creature_info::CreatureInfo;
@@ -24,7 +26,7 @@ impl Game {
 			let goblin_entity = Entity {
 				name: String::from("Goblin"),
 				glyph: 'g',
-				position: point
+				position: point,
 			};
 			let goblin_info = CreatureInfo {
 				entity: goblin_entity,
@@ -33,7 +35,7 @@ impl Game {
 				strength: 1,
 			};
 			let goblin = Monster {
-				creature_info: goblin_info
+				creature_info: goblin_info,
 			};
 
 			self.monsters.push(goblin);
@@ -41,11 +43,19 @@ impl Game {
 	}
 
 	pub fn move_monsters(&mut self) {
-		let current_positions = self.monsters.iter().map(|monster| monster.creature_info.entity.position).collect::<Vec<Point>>();
+		let mut current_positions = self
+			.monsters
+			.iter()
+			.map(|monster| monster.creature_info.entity.position)
+			.collect::<HashSet<Point>>();
 		for monster in &mut self.monsters {
 			// TODO It could be very good to just keep an rng field and re-use that.
 			let mut rng = thread_rng();
-			let path = self.map.find_shortest_path_to(&monster.creature_info.entity.position, &self.player.creature_info.entity.position, &mut rng);
+			let path = self.map.find_shortest_path_to(
+				&monster.creature_info.entity.position,
+				&self.player.creature_info.entity.position,
+				&mut rng,
+			);
 			if path.len() > 1 {
 				let next_step = path[1];
 				let mut empty_destination = !current_positions.contains(&next_step);
@@ -54,8 +64,10 @@ impl Game {
 					self.player.creature_info.health -= monster.creature_info.strength;
 				}
 				if empty_destination {
+					current_positions.remove(&monster.creature_info.entity.position);
+					current_positions.insert(next_step);
 					monster.creature_info.entity.position = next_step;
-				}	
+				}
 			}
 		}
 	}

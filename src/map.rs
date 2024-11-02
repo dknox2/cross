@@ -41,7 +41,12 @@ impl Map {
 	}
 
 	// TODO Need to organize my monster spawning and movement logic better.
-	pub fn find_shortest_path_to(&self, start: &Point, end: &Point, rng: &mut ThreadRng) -> Vec<Point> {
+	pub fn find_shortest_path_to(
+		&self,
+		start: &Point,
+		end: &Point,
+		rng: &mut ThreadRng,
+	) -> Vec<Point> {
 		let mut queue = VecDeque::new();
 		let mut explored = HashSet::new();
 		let mut parents = HashMap::new();

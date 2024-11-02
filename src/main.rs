@@ -22,7 +22,6 @@ fn move_player(game: &mut Game, direction: &Point) {
 		x: game.player.creature_info.entity.position.x + direction.x,
 		y: game.player.creature_info.entity.position.y + direction.y,
 	};
-	println!("{} {}", destination.x, destination.y);
 	let index = game.map.point_to_index(&destination);
 	if game.map.tiles[index].is_traversible() {
 		game.move_player(destination);
@@ -42,7 +41,7 @@ fn main() -> std::io::Result<()> {
 	let player_entity = Entity {
 		name: String::from("Player"),
 		glyph: '@',
-		position
+		position,
 	};
 	let creature_info = CreatureInfo {
 		entity: player_entity,
@@ -50,7 +49,7 @@ fn main() -> std::io::Result<()> {
 		health: 12,
 		strength: 1,
 	};
-	
+
 	let player = player::Player { creature_info };
 
 	let mut game = Game {

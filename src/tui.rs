@@ -9,14 +9,13 @@ use crossterm::{
 };
 
 use crate::entity::Entity;
-use crate::monster::Monster;
 use crate::map::{Map, TileType, MAP_HEIGHT, MAP_WIDTH};
+use crate::monster::Monster;
 
 pub fn setup_terminal() -> std::io::Result<()> {
 	terminal::enable_raw_mode()?;
 	stdout()
 		.execute(EnterAlternateScreen)?
-		//.execute(SetSize(MAP_HEIGHT.try_into().unwrap(), MAP_WIDTH.try_into().unwrap()))?
 		.execute(Hide)?
 		.execute(Clear(ClearType::All))?;
 
@@ -57,10 +56,7 @@ pub fn draw_monsters(monsters: &[Monster]) -> std::io::Result<()> {
 
 pub fn draw_entity(entity: &Entity) -> std::io::Result<()> {
 	stdout()
-		.queue(MoveTo(
-				entity.position.x as u16,
-				entity.position.y as u16
-		))?
+		.queue(MoveTo(entity.position.x as u16, entity.position.y as u16))?
 		.queue(Print(entity.glyph))?;
 
 	Ok(())
