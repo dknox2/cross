@@ -1,6 +1,8 @@
-mod creature;
+mod creature_info;
+mod entity;
 mod game;
 mod map;
+mod monster;
 mod player;
 mod point;
 mod rect;
@@ -8,11 +10,24 @@ mod tui;
 
 use std::io::{stdout, Write};
 
-use crate::creature::Creature;
+use crate::creature_info::CreatureInfo;
+use crate::entity::Entity;
 use crate::game::Game;
 use crate::point::Point;
 
 use crossterm::event::{read, Event, KeyCode};
+
+fn move_player(game: &mut Game, direction: &Point) {
+	let destination = Point {
+		x: game.player.creature_info.entity.position.x + direction.x,
+		y: game.player.creature_info.entity.position.y + direction.y,
+	};
+	println!("{} {}", destination.x, destination.y);
+	let index = game.map.point_to_index(&destination);
+	if game.map.tiles[index].is_traversible() {
+		game.move_player(destination);
+	}
+}
 
 fn main() -> std::io::Result<()> {
 	let mut random = rand::thread_rng();
@@ -24,15 +39,19 @@ fn main() -> std::io::Result<()> {
 		x: player_i,
 		y: player_j,
 	};
-	let creature = Creature {
-		position,
+	let player_entity = Entity {
 		name: String::from("Player"),
+		glyph: '@',
+		position
+	};
+	let creature_info = CreatureInfo {
+		entity: player_entity,
 		max_health: 12,
 		health: 12,
 		strength: 1,
 	};
-
-	let player = player::Player { creature };
+	
+	let player = player::Player { creature_info };
 
 	let mut game = Game {
 		map,
@@ -43,7 +62,7 @@ fn main() -> std::io::Result<()> {
 
 	tui::setup_terminal()?;
 	tui::draw_map(&game.map)?;
-	tui::draw_player(&game.player)?;
+	tui::draw_entity(&game.player.creature_info.entity)?;
 	tui::draw_monsters(&game.monsters)?;
 
 	stdout().flush()?;
@@ -52,131 +71,50 @@ fn main() -> std::io::Result<()> {
 		let event = read()?;
 		if let Event::Key(event) = event {
 			match event.code {
-				// TODO We should move the "is valid move" logic to the move method in Game
 				KeyCode::Up | KeyCode::Char('8') => {
 					let direction = Point { x: 0, y: -1 };
-					let coordinates = Point {
-						x: game.player.creature.position.x,
-						y: game.player.creature.position.y - 1,
-					};
-					let index = game.map.point_to_index(&coordinates);
-					if game.map.tiles[index].is_traversible() {
-						game.player
-							.creature
-							.move_or_attack(&direction, &mut game.monsters);
-					}
+					move_player(&mut game, &direction);
 				}
 				KeyCode::Down | KeyCode::Char('2') => {
 					let direction = Point { x: 0, y: 1 };
-					let coordinates = (
-						game.player.creature.position.x,
-						game.player.creature.position.y + 1,
-					);
-					let index = game.map.coordinates_to_index(coordinates.0, coordinates.1);
-					if game.map.tiles[index].is_traversible() {
-						game.player
-							.creature
-							.move_or_attack(&direction, &mut game.monsters);
-					}
+					move_player(&mut game, &direction);
 				}
 				KeyCode::Left | KeyCode::Char('4') => {
 					let direction = Point { x: -1, y: 0 };
-					let coordinates = (
-						game.player.creature.position.x - 1,
-						game.player.creature.position.y,
-					);
-					let index = game.map.coordinates_to_index(coordinates.0, coordinates.1);
-					if game.map.tiles[index].is_traversible() {
-						game.player
-							.creature
-							.move_or_attack(&direction, &mut game.monsters);
-					}
+					move_player(&mut game, &direction);
 				}
 				KeyCode::Right | KeyCode::Char('6') => {
 					let direction = Point { x: 1, y: 0 };
-					let coordinates = (
-						game.player.creature.position.x + 1,
-						game.player.creature.position.y,
-					);
-					let index = game.map.coordinates_to_index(coordinates.0, coordinates.1);
-					if game.map.tiles[index].is_traversible() {
-						game.player
-							.creature
-							.move_or_attack(&direction, &mut game.monsters);
-					}
+					move_player(&mut game, &direction);
 				}
 				KeyCode::Char('7') => {
 					let direction = Point { x: -1, y: -1 };
-					let coordinates = Point {
-						x: game.player.creature.position.x,
-						y: game.player.creature.position.y - 1,
-					};
-					let index = game.map.point_to_index(&coordinates);
-					if game.map.tiles[index].is_traversible() {
-						game.player
-							.creature
-							.move_or_attack(&direction, &mut game.monsters);
-					}
+					move_player(&mut game, &direction);
 				}
 				KeyCode::Char('9') => {
 					let direction = Point { x: 1, y: -1 };
-					let coordinates = Point {
-						x: game.player.creature.position.x,
-						y: game.player.creature.position.y - 1,
-					};
-					let index = game.map.point_to_index(&coordinates);
-					if game.map.tiles[index].is_traversible() {
-						game.player
-							.creature
-							.move_or_attack(&direction, &mut game.monsters);
-					}
+					move_player(&mut game, &direction);
 				}
 				KeyCode::Char('1') => {
 					let direction = Point { x: -1, y: 1 };
-					let coordinates = Point {
-						x: game.player.creature.position.x,
-						y: game.player.creature.position.y - 1,
-					};
-					let index = game.map.point_to_index(&coordinates);
-					if game.map.tiles[index].is_traversible() {
-						game.player
-							.creature
-							.move_or_attack(&direction, &mut game.monsters);
-					}
+					move_player(&mut game, &direction);
 				}
 				KeyCode::Char('3') => {
 					let direction = Point { x: 1, y: 1 };
-					let coordinates = Point {
-						x: game.player.creature.position.x,
-						y: game.player.creature.position.y - 1,
-					};
-					let index = game.map.point_to_index(&coordinates);
-					if game.map.tiles[index].is_traversible() {
-						game.player
-							.creature
-							.move_or_attack(&direction, &mut game.monsters);
-					}
+					move_player(&mut game, &direction);
 				}
 				KeyCode::Char('5') => {}
 				KeyCode::Esc => break 'main_loop,
-				_ => {}
+				_ => {
+					continue;
+				}
 			}
 		}
 
-		for monster in &mut game.monsters {
-			let path = game
-				.map
-				.find_shortest_path_to(&monster.position, &game.player.creature.position);
-			// TODO We should maybe find a better way to handle when a path cannot be found.
-			if path.len() > 1 {
-				let next_step = path[1];
-				monster.position.x = next_step.x;
-				monster.position.y = next_step.y;
-			}
-		}
+		game.move_monsters();
 
 		tui::draw_map(&game.map)?;
-		tui::draw_player(&game.player)?;
+		tui::draw_entity(&game.player.creature_info.entity)?;
 		tui::draw_monsters(&game.monsters)?;
 		stdout().flush()?;
 	}
@@ -184,7 +122,7 @@ fn main() -> std::io::Result<()> {
 	tui::teardown_terminal()?;
 
 	for monster in &game.monsters {
-		println!("{}", monster.health);
+		println!("{}", monster.creature_info.health);
 	}
 
 	Ok(())

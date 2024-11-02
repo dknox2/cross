@@ -1,6 +1,8 @@
-use rand::prelude::*;
 use std::cmp::{max, min};
 use std::collections::{HashMap, HashSet, VecDeque};
+
+use rand::prelude::*;
+use rand::seq::SliceRandom;
 
 use crate::point::Point;
 use crate::rect::Rect;
@@ -39,7 +41,7 @@ impl Map {
 	}
 
 	// TODO Need to organize my monster spawning and movement logic better.
-	pub fn find_shortest_path_to(&self, start: &Point, end: &Point) -> Vec<Point> {
+	pub fn find_shortest_path_to(&self, start: &Point, end: &Point, rng: &mut ThreadRng) -> Vec<Point> {
 		let mut queue = VecDeque::new();
 		let mut explored = HashSet::new();
 		let mut parents = HashMap::new();
@@ -52,7 +54,10 @@ impl Map {
 			if current == *end {
 				return self.backtrace(&parents, start, end);
 			}
-			let adjacent_tiles = self.get_traversible_adjacent_tiles(current.x, current.y);
+
+			let mut adjacent_tiles = self.get_traversible_adjacent_tiles(current.x, current.y);
+			adjacent_tiles.shuffle(rng);
+
 			for tile in adjacent_tiles {
 				if !explored.contains(&tile) {
 					queue.push_back(tile);

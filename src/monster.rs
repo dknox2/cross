@@ -1,5 +1,5 @@
 use crate::creature_info::CreatureInfo;
 
-pub struct Player {
+pub struct Monster {
 	pub creature_info: CreatureInfo,
 }

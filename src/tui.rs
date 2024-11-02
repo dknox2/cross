@@ -8,9 +8,9 @@ use crossterm::{
 	ExecutableCommand, QueueableCommand,
 };
 
-use crate::creature::Creature;
+use crate::entity::Entity;
+use crate::monster::Monster;
 use crate::map::{Map, TileType, MAP_HEIGHT, MAP_WIDTH};
-use crate::player::Player;
 
 pub fn setup_terminal() -> std::io::Result<()> {
 	terminal::enable_raw_mode()?;
@@ -47,28 +47,21 @@ pub fn draw_map(map: &Map) -> std::io::Result<()> {
 	Ok(())
 }
 
-pub fn draw_player(player: &Player) -> std::io::Result<()> {
-	let index = player.creature.position.x * 60 + player.creature.position.y;
-	stdout()
-		.queue(MoveTo(
-			player.creature.position.x as u16,
-			player.creature.position.y as u16,
-		))?
-		.queue(Print('@'))?
-		.queue(MoveTo(0, 0))?
-		.queue(Print(format!(
-			"{} {}: {}",
-			player.creature.position.x, player.creature.position.y, index
-		)))?;
+pub fn draw_monsters(monsters: &[Monster]) -> std::io::Result<()> {
+	let entities = monsters.iter().map(|monster| &monster.creature_info.entity);
+	for entity in entities {
+		draw_entity(entity)?;
+	}
 	Ok(())
 }
 
-pub fn draw_monsters(monsters: &[Creature]) -> std::io::Result<()> {
-	for monster in monsters {
-		stdout()
-			.queue(MoveTo(monster.position.x as u16, monster.position.y as u16))?
-			.queue(Print('g'))?;
-	}
+pub fn draw_entity(entity: &Entity) -> std::io::Result<()> {
+	stdout()
+		.queue(MoveTo(
+				entity.position.x as u16,
+				entity.position.y as u16
+		))?
+		.queue(Print(entity.glyph))?;
 
 	Ok(())
 }
