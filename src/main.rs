@@ -63,6 +63,7 @@ fn main() -> std::io::Result<()> {
 	tui::draw_map(&game.map)?;
 	tui::draw_entity(&game.player.creature_info.entity)?;
 	tui::draw_monsters(&game.monsters)?;
+	tui::draw_hud(&game)?;
 
 	stdout().flush()?;
 
@@ -115,6 +116,8 @@ fn main() -> std::io::Result<()> {
 		tui::draw_map(&game.map)?;
 		tui::draw_entity(&game.player.creature_info.entity)?;
 		tui::draw_monsters(&game.monsters)?;
+		tui::draw_hud(&game)?;
+		
 		stdout().flush()?;
 	}
 

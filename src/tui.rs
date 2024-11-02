@@ -9,6 +9,7 @@ use crossterm::{
 };
 
 use crate::entity::Entity;
+use crate::game::Game;
 use crate::map::{Map, TileType, MAP_HEIGHT, MAP_WIDTH};
 use crate::monster::Monster;
 
@@ -58,6 +59,14 @@ pub fn draw_entity(entity: &Entity) -> std::io::Result<()> {
 	stdout()
 		.queue(MoveTo(entity.position.x as u16, entity.position.y as u16))?
 		.queue(Print(entity.glyph))?;
+
+	Ok(())
+}
+
+pub fn draw_hud(game: &Game) -> std::io::Result<()> {
+	stdout()
+		.queue(MoveTo(1, MAP_HEIGHT as u16 + 1))?
+		.queue(Print(format!("HP: {}({})", game.player.creature_info.health, game.player.creature_info.max_health)))?;
 
 	Ok(())
 }
