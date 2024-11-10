@@ -2,9 +2,8 @@ use std::io::stdout;
 
 use crossterm::{
 	cursor::{Hide, MoveTo},
-	event, execute,
-	style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
-	terminal::{self, Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen, SetSize},
+	style::Print,
+	terminal::{self, Clear, ClearType, EnterAlternateScreen, LeaveAlternateScreen},
 	ExecutableCommand, QueueableCommand,
 };
 
@@ -67,6 +66,17 @@ pub fn draw_hud(game: &Game) -> std::io::Result<()> {
 	stdout()
 		.queue(MoveTo(1, MAP_HEIGHT as u16 + 1))?
 		.queue(Print(format!("HP: {}({})", game.player.creature_info.health, game.player.creature_info.max_health)))?;
+
+	Ok(())
+}
+
+pub fn draw_game_over_screen() -> std::io::Result<()> {
+	stdout()
+		.queue(Clear(ClearType::All))?
+		.queue(MoveTo(1, 1))?
+		.queue(Print("The dungeon claims another..."))?
+		.queue(MoveTo(1, 2))?
+		.queue(Print("Press Enter to continue."))?;
 
 	Ok(())
 }

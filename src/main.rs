@@ -9,7 +9,7 @@ mod point;
 mod rect;
 mod tui;
 
-use std::io::{stdout, Write};
+use std::io::{stdin, stdout, Write};
 
 use crate::creature_info::CreatureInfo;
 use crate::entity::Entity;
@@ -68,7 +68,8 @@ fn main() -> std::io::Result<()> {
 
 	stdout().flush()?;
 
-	'main_loop: loop {
+	let mut game_alive = true;
+	'main_loop: while game_alive {
 		let event = read()?;
 		if let Event::Key(event) = event {
 			match event.code {
@@ -119,7 +120,26 @@ fn main() -> std::io::Result<()> {
 		tui::draw_monsters(&game.monsters)?;
 		tui::draw_hud(&game)?;
 		
+		if game.player.creature_info.health <= 0 {
+			game_alive = false;
+		}
+
 		stdout().flush()?;
+	}
+
+	if !game_alive {
+		tui::draw_game_over_screen()?;
+		stdout().flush()?;
+		
+		loop {
+			let event = read()?;
+			// TODO More elegant way to do this?
+			if let Event::Key(event) = event {
+				if event.code == KeyCode::Enter {
+					break;
+				}
+			}
+		}
 	}
 
 	tui::teardown_terminal()?;
