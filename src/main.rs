@@ -9,11 +9,10 @@ mod point;
 mod rect;
 mod tui;
 
-use std::io::{stdin, stdout, Write};
+use std::io::{stdout, Write};
 
-use crate::creature_info::CreatureInfo;
-use crate::entity::Entity;
 use crate::game::Game;
+use crate::map::TileType;
 use crate::point::Point;
 
 use crossterm::event::{read, Event, KeyCode};
@@ -80,6 +79,12 @@ fn main() -> std::io::Result<()> {
 					move_player(&mut game, &direction);
 				}
 				KeyCode::Char('5') => {}
+				KeyCode::Char('<') => {
+					let index = game.map.point_to_index(&game.player.creature_info.entity.position);
+					if game.map.tiles[index] == TileType::DownStairs {
+						game.build_new_floor();
+					}
+				}
 				KeyCode::Esc => break 'main_loop,
 				_ => {
 					continue;

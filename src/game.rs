@@ -37,14 +37,13 @@ impl Game {
 			health: 12,
 			strength: 1,
 		};
-
 		let player = Player { creature_info, gold: 0 };
-
 		let mut game = Game {
 			map,
 			player,
 			monsters: Vec::new(),
 		};
+
 		game.spawn_monsters_in_map_rooms();
 
 		game
@@ -74,6 +73,24 @@ impl Game {
 
 			self.monsters.push(goblin);
 		}
+	}
+
+	pub fn build_new_floor(&mut self) {
+		let mut random = rand::thread_rng();
+		let map = Map::with_rooms_and_corridors(&mut random, 1);
+	
+		let player_i = map.rooms[0].x1 + 1;
+		let player_j = map.rooms[0].y1 + 1;
+
+		let position = Point {
+			x: player_i,
+			y: player_j,
+		};
+
+		self.map = map;
+		self.player.creature_info.entity.position = position;
+		self.monsters.clear();
+		self.spawn_monsters_in_map_rooms();
 	}
 
 	pub fn delete_dead_monsters(&mut self) {

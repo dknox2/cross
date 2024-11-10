@@ -34,11 +34,19 @@ pub fn draw_map(map: &Map) -> std::io::Result<()> {
 
 	for y in 0..MAP_HEIGHT {
 		for x in 0..MAP_WIDTH {
+			stdout()
+				.queue(MoveTo(x as u16, y as u16))?;
 			let index = map.coordinates_to_index(x as i32, y as i32);
+			match map.tiles[index] {
+				TileType::Wall => {
+					stdout().queue(Print('█'))?;
+				}
+				TileType::DownStairs => {
+					stdout().queue(Print('<'))?;
+				}
+				TileType::Floor => { }
+			}
 			if map.tiles[index] == TileType::Wall {
-				stdout()
-					.queue(MoveTo(x as u16, y as u16))?
-					.queue(Print('█'))?;
 			}
 		}
 	}
