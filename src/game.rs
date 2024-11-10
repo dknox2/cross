@@ -1,7 +1,5 @@
 use std::collections::HashSet;
 
-use rand::thread_rng;
-
 use crate::creature_info::CreatureInfo;
 use crate::entity::Entity;
 use crate::map::Map;
@@ -89,8 +87,6 @@ impl Game {
 			.map(|monster| monster.creature_info.entity.position)
 			.collect::<HashSet<Point>>();
 		for monster in &mut self.monsters {
-			// TODO It could be very good to just keep an rng field and re-use that.
-			let mut rng = thread_rng();
 			let path = find_shortest_path_to(
 				&self.map,
 				&monster.creature_info.entity.position,
