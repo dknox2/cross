@@ -3,6 +3,7 @@ mod entity;
 mod game;
 mod map;
 mod monster;
+mod pathfinding;
 mod player;
 mod point;
 mod rect;
@@ -50,7 +51,7 @@ fn main() -> std::io::Result<()> {
 		strength: 1,
 	};
 
-	let player = player::Player { creature_info };
+	let player = player::Player { creature_info, gold: 0 };
 
 	let mut game = Game {
 		map,

@@ -6,6 +6,7 @@ use crate::creature_info::CreatureInfo;
 use crate::entity::Entity;
 use crate::map::Map;
 use crate::monster::Monster;
+use crate::pathfinding::find_shortest_path_to;
 use crate::player::Player;
 use crate::point::Point;
 
@@ -51,10 +52,10 @@ impl Game {
 		for monster in &mut self.monsters {
 			// TODO It could be very good to just keep an rng field and re-use that.
 			let mut rng = thread_rng();
-			let path = self.map.find_shortest_path_to(
+			let path = find_shortest_path_to(
+				&self.map,
 				&monster.creature_info.entity.position,
-				&self.player.creature_info.entity.position,
-				&mut rng,
+				&self.player.creature_info.entity.position
 			);
 			if path.len() > 1 {
 				let next_step = path[1];
