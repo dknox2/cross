@@ -17,6 +17,41 @@ pub struct Game {
 }
 
 impl Game {
+	pub fn new() -> Self {
+		let mut random = rand::thread_rng();
+		let map = Map::with_rooms_and_corridors(&mut random, 1);
+
+		let player_i = map.rooms[0].x1 + 1;
+		let player_j = map.rooms[0].y1 + 1;
+
+		let position = Point {
+			x: player_i,
+			y: player_j,
+		};
+		let player_entity = Entity {
+			name: String::from("Player"),
+			glyph: '@',
+			position,
+		};
+		let creature_info = CreatureInfo {
+			entity: player_entity,
+			max_health: 12,
+			health: 12,
+			strength: 1,
+		};
+
+		let player = Player { creature_info, gold: 0 };
+
+		let mut game = Game {
+			map,
+			player,
+			monsters: Vec::new(),
+		};
+		game.spawn_monsters_in_map_rooms();
+
+		game
+	}
+
 	pub fn spawn_monsters_in_map_rooms(&mut self) {
 		for room in &self.map.rooms {
 			let center = room.center();
@@ -31,8 +66,8 @@ impl Game {
 			};
 			let goblin_info = CreatureInfo {
 				entity: goblin_entity,
-				max_health: 5,
-				health: 5,
+				max_health: 2,
+				health: 2,
 				strength: 1,
 			};
 			let goblin = Monster {
@@ -41,6 +76,10 @@ impl Game {
 
 			self.monsters.push(goblin);
 		}
+	}
+
+	pub fn delete_dead_monsters(&mut self) {
+		self.monsters.retain(|monster| monster.creature_info.health > 0);
 	}
 
 	pub fn move_monsters(&mut self) {

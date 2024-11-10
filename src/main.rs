@@ -18,6 +18,8 @@ use crate::point::Point;
 
 use crossterm::event::{read, Event, KeyCode};
 
+// Not sure if this is an especially good way to handle things.
+// Need to draw out what I think the interfaces and such should actually look like.
 fn move_player(game: &mut Game, direction: &Point) {
 	let destination = Point {
 		x: game.player.creature_info.entity.position.x + direction.x,
@@ -30,35 +32,7 @@ fn move_player(game: &mut Game, direction: &Point) {
 }
 
 fn main() -> std::io::Result<()> {
-	let mut random = rand::thread_rng();
-	let map = map::Map::with_rooms_and_corridors(&mut random, 1);
-	let player_i = map.rooms[0].x1 + 1;
-	let player_j = map.rooms[0].y1 + 1;
-
-	let position = Point {
-		x: player_i,
-		y: player_j,
-	};
-	let player_entity = Entity {
-		name: String::from("Player"),
-		glyph: '@',
-		position,
-	};
-	let creature_info = CreatureInfo {
-		entity: player_entity,
-		max_health: 12,
-		health: 12,
-		strength: 1,
-	};
-
-	let player = player::Player { creature_info, gold: 0 };
-
-	let mut game = Game {
-		map,
-		player,
-		monsters: Vec::new(),
-	};
-	game.spawn_monsters_in_map_rooms();
+	let mut game = Game::new();
 
 	tui::setup_terminal()?;
 	tui::draw_map(&game.map)?;
@@ -112,6 +86,8 @@ fn main() -> std::io::Result<()> {
 				}
 			}
 		}
+
+		game.delete_dead_monsters();
 
 		game.move_monsters();
 
